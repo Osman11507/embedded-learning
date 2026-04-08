@@ -13,6 +13,7 @@ Projeler platform bazlı olarak üç ana klasöre ayrılacaktır:
 
 ### 🔹 ESP32 Projeleri
 * 'PWM_LED' : Projede genel olarak ESP-IDF kullanımı ile ilgili tecrübe edindim ve aynı zamanda bu projede Timer ve Channel arasındaki farkı öğrendim, Timer sinyalin kalbidir, Channel ise o sinyali pine taşıyan yoldur
+* 'BTN_PWM_LED_CNTRL': Projede timer ve channel kullanımını pekiştirdim aynı zamanda timer fonksiyonu kullanımını ve type casting işlemlerini öğrendim.
 
 ### 🔹 STM32 Projeleri
  
