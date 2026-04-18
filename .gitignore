@@ -30,3 +30,4 @@
 *.exe
 *.out
 *.app
+ESP32/Sentinel_Cloud/main/screts.h
