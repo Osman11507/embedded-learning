@@ -20,7 +20,7 @@ Projeler platform bazlı olarak üç ana klasöre ayrılacaktır:
 
 * 'Sentinel_Cloud' : ESP-IDF ve FreeRTOS kullanılarak geliştirilen bu IoT projesi, OpenWeatherMap API'sinden gerçek zamanlı veriler çekerek asenkron bir sistem mimarisi sunar. Proje kapsamında; çift çekirdekli (Dual-Core) yapıda görev dağılımı, FreeRTOS kuyrukları (Queues) ile görevler arası güvenli veri transferi, manuel HTTP akış yönetimi (open/fetch/read) ve cJSON ile dinamik bellek yönetimi gibi  disiplinleri uygulayarak sistem kararlılığını ve bellek güvenliğini optimize ettim. Mevcut mimariyi daha kararlı hale getirmek adına FreeRTOS kuyruk yönetimi, RTOS zamanlama dinamikleri, düşük seviyeli bellek yönetimi ve HTTP akış kontrolünün ince detayları üzerine derinlemesine çalışmalar ve öğrenimler yürütüyorum.
 
-
+* 'Sentinal_UI' : Bu proje LVGL framework kullanılarak gelişştirilen, C dilinde nesne yönelimli programlama (OOP) mantığını simüle eden yüksek performanslı bir grafik arayüzü projesidir. Bu proje ile beraker OOP, HAL ve encapsulation prensiplerini örenmiş oldum. Projenin donanım kısmında birkaç teknik aksaklıklar olup çözümü içn hala uğraşmakltayım.
 
 
 ### 🔹 STM32 Projeleri
