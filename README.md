@@ -24,6 +24,11 @@ Projeler platform bazlı olarak üç ana klasöre ayrılacaktır:
 
 
 ### 🔹 STM32 Projeleri
+### HAL:STM32 de kütüphaneler ile yazdığım projeler.
+* 'Led_blink' : HAL kütüphanesi ile yazdığım led yakıp södürme kodum.
+
+### Bare Metal:STM32 de olabildiğince kütüphane kullanmadan register seviyesinde(Bare-metal) yazdığım projeler.
+* 'Led_blink_BM' : Gpıo ve systick, RCC registerlarını kullanarak yazmış olduğum led blink projem. Bu proje kapsamında Systick kullanımı ile delay fonksiyonu yaprım. Countflag ve RCC yapılarının temellerini öğrenmiş oldum. Bu kısımlarda hala eksikliğini hissetiğim bazı şeyler var fakat çalışamalarım devam etmekte.
  
 ### 🔹 FPGA Projeleri
 
