@@ -36,22 +36,29 @@ typedef unsigned int uint32_t;
 
 
 void Clock_Config_84MHz(void){
+/*Bu fonksyonun amacı işlemcinin kaynak hızını (16MHz) 84MHz ye çekmektr.*/
 	FLASH_ACR &= ~0x7;//temizleme
-	FLASH_ACR |= (2<<0);
+	FLASH_ACR |= (2<<0);// flash gecikmesini 2ws olarak ayarlıyoruz
+/*Flash ın 84Mhz de işlemci hızına yetişmesi mümkün değil. 84MHz de işlemci 11.9 ns de 1  işlem  yapar
+ * Flash ise 30-40 ns arasında 1 veri sunar. Biz işlemciye sen 2 döngü sonrasındaki döngüde veri al. yani 3x11.9= 35.7ns de 1 flash dan veri al dedik. Bu istediğimiz aralıkta
+ * RM0368 sayfa 48 de bulunan tablo*/
 
+/*PLL (Phase Lock Loop) bizim işlemcimizin saatini istediğimiz değerde büyütme veya küçültmeye yarayan çarpan formülü. Bir nevi vites kutusu
+ * */
 	RCC_CR &= ~(1 << 24);// PLLON değerini 0 yaparak kapatıyorum
-	while(RCC_CR & (1<<25));
+	while(RCC_CR & (1<<25));// PLLRDY bitinin 0 olmasını bekleyerek emin oluyoruz
 
 	RCC_PLLCFGR &= ~((0x3F<<0) | (0x1FF << 6) | (0x03 << 16));// M, N ve P alanlarını temizleme
-	RCC_PLLCFGR |= (16<<0);
-	RCC_PLLCFGR |= (336 << 6);
-	RCC_PLLCFGR |= (1<<16);
-	RCC_PLLCFGR |= (0 << 22);
+	RCC_PLLCFGR |= (16<<0);//M değeri
+	RCC_PLLCFGR |= (336 << 6);//N değeri
+	RCC_PLLCFGR |= (1<<16);// P değeri p=4 binary karşılık
+	RCC_PLLCFGR |= (0 << 22);// Kaynak olarak (HSI) 16 MHz kullanamsını söyledik bu biti 0 yaparak
+/*PLL formülizasyonu = Fpll_out = (Fhsı/M) X (N/P)  16/16 = 1, 336/4 = 84, 1x84 = 84. */
 
 	RCC_CR |= (1 << 24);//PLL yi tekrar açıyorum
-	while(!(RCC_CR & (1<<25)));
-	RCC_CFGR &= ~0x3;
-	RCC_CFGR |= (2<<0);//saati pll olarak seçiyorum
+	while(!(RCC_CR & (1<<25)));// açılana kadarbekliyor ve emin oluyorum (polling)
+	RCC_CFGR &= ~0x3;// Alan tmeizleme
+	RCC_CFGR |= (2<<0);//Yukarıda ayarladığım pll yi işlemcinin ana kaynağı olarak atıyorum
 	while ((RCC_CFGR & (0xC << 0)) != (0x8 << 0)); // SWS bitleri  ile PLL kullanılana kadar bekliyorum.
 
 }
@@ -59,13 +66,14 @@ void Clock_Config_84MHz(void){
 
 
 void GPIO_PWM_INIT(void){
-	RCC_AHB1ENR |= (1<<0);
+/*Bu fonksiyonun amacı PA1 bacağını TIM2 nin bir uzantısı olarak ayarlamak*/
+	RCC_AHB1ENR |= (1<<0);// GPIOA saatini aktif ediyorum
 
-	GPIOA_MODER &= ~(0x3<<2);
-	GPIOA_MODER |= (0x2<<2);
+	GPIOA_MODER &= ~(0x3<<2);// Mod alanını temizliyorum
+	GPIOA_MODER |= (0x2<<2);// mod olarak Altarnate Function ( özel görev Uart timer vs gibi) seçiyorum
 
-	GPIOA_AFRL &= ~(0xF<<4);
-	GPIOA_AFRL |= (0x1<<4);
+	GPIOA_AFRL &= ~(0xF<<4);//görev alanını temizliyorum
+	GPIOA_AFRL |= (0x1<<4);// Özel görev olarak TIM2 seçiyorum Yukardakinden farkı. Yukarıda sadece özel görev yapacaksın sen dedik. Burada ise senin görevin  artık TIM diyoruz.
 
 
 }
@@ -73,32 +81,43 @@ void GPIO_PWM_INIT(void){
 
 
 void TIM2_PWM_Init(void){
-	RCC_APB1ENR &= ~0xF;
-	RCC_APB1ENR |=(1<<0);
-	TIM2_PSC = 83;
+/*Bu fok-nksiyonun amacı. İşlemcinin yüksek hızını 84MHz, LED'in pürüzsüz yanıp sönmesini sağlayacak 1kHz ye çevirmek*/
+//PSC: İşlemci hızını böldüğümüz değer
+// ARR TAvan değerimiz, kaça kadar sayacağız.
+	RCC_APB1ENR &= ~0xF;//alan temizleme
+	RCC_APB1ENR |=(1<<0);//TIM2 sayacını başlatdık
+	TIM2_PSC = 83;//
 	TIM2_ARR = 999;
+/*Fpwm = Fclk/(PSC+1)x(ARR+1) yani 84Mhz/83+1 Mhz = 1Mhz, 1MHz/999+1 = 1kHz*/
+	TIM2_CCMR1 &= ~(0xFF<<8);//Alan temizleme
+	TIM2_CCMR1 |= (6<<12);//PWM mode 1
+	TIM2_CCMR1 |= (1<<11);//OC2PE
+/*CNT=0 dan ARR ye kadar sayan sayacım.
+ * CCR2 Değeri eşik değer(main içerisinde)
+ * OC2M sayacımın bu eşik değerine olan uzaklığına göre hangi işlemi yapmak istediğim( Bu kod için bu değer 110 yani PWM mode1
+ * PWM mode 1 eğer  CNT CCR2 den küçükse pin high büyükse low yapar).
+ * Mesela CCR2 = 100 ARR = 999 ve PWM mode 1 ise led 0 dan 100 e kadar high devamında 900 e kadar ise low sayar.  YANİ DUTY CYCLE AYARLIYORUM
+ * Duty Cycle = (CCR2/ARR) X 100
+ * OC2PE:  While döngüsü içeriinde CCR2 değerimi değiştirmek istediğimde bir glich oluşur . Biz burada CCR2 değerini değiştirmeden önce
+ * o ankii CCR2 değerini ARR ye ulaşana kadar bekle diyoruz. Periyodu tamamla */
 
-	TIM2_CCMR1 &= ~(0xFF<<8);
-	TIM2_CCMR1 |= (6<<12);
-	TIM2_CCMR1 |= (1<<11);
+	TIM2_CCER |=(1<<4);// Sİnyali bacağa veriyorum
 
-	TIM2_CCER |=(1<<4);
-
-	TIM2_CR1 |= (1<<0);
+	TIM2_CR1 |= (1<<0);// saati başlatıyorum.
 
 }
 
 
 
 void Delay_ms(uint32_t ms){
-	STK_LOAD = 84000 - 1;
-	STK_VAL = 0;
-	STK_CTRL = 5;
+	STK_LOAD = 84000 - 1;// 1 sn de 84000000 ise 1 ms için 84000-1 ( sayaç load değerinden geriye doğru sayar )
+	STK_VAL = 0;//
+	STK_CTRL = 5;// sayacı başlat ve işlemci ile senkron hale getir
 
 	for (uint32_t i = 0; i < ms; i++) {
-		while (!(STK_CTRL & (1 << 16)));
+		while (!(STK_CTRL & (1 << 16)));//polling kontrolü ile 16. bit de bulunan COUNTFLAG ın 1 olmasını bekliyoruz ( 1 kere döngü tamamlandı ). ASıl geçikme işlemini bu kontrol işelmi yapıyor
 	    }
-	STK_CTRL = 0;
+	STK_CTRL = 0;//yük boşaltma
 
 }
 
