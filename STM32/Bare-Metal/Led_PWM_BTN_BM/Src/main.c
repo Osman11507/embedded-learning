@@ -155,7 +155,7 @@ void SYSCFG_INIT(void){
 
 
 void EXTI_INIT(void){
-/*YSCFG bağlantıyı yaptı, ancak o hattın nasıl davranacağını,
+/*SYSCFG bağlantıyı yaptı, ancak o hattın nasıl davranacağını,
  * hangi sinyalde tepki vereceğini henüz bilmiyoruz.
  * EXTI birimi, gelen sinyalin karakterini (düşen kenar mı, yükselen mi?)
  * inceler ve ona göre işlemciye haber verip vermeyeceğine karar verir.*/
