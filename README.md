@@ -26,11 +26,17 @@ Projeler platform bazlı olarak üç ana klasöre ayrılacaktır:
 ### 🔹 STM32 Projeleri
 ### HAL:STM32 de kütüphaneler ile yazdığım projeler.
 * 'Led_blink' : HAL kütüphanesi ile yazdığım led yakıp södürme kodum.
+
 * 'Led_PWM' : HAL kütüphanesi ile yazdığım led fade kodum.
+
+* 'Led_PWM_BTN' : 'adet buton ile ledin parlaklığını artırıp azalttığım kodum.
 
 ### Bare Metal:STM32 de olabildiğince kütüphane kullanmadan register seviyesinde(Bare-metal) yazdığım projeler.
 * 'Led_blink_BM' : Gpıo ve systick, RCC registerlarını kullanarak yazmış olduğum led blink projem. Bu proje kapsamında Systick kullanımı ile delay fonksiyonu yaprım. Countflag ve RCC yapılarının temellerini öğrenmiş oldum. Bu kısımlarda hala eksikliğini hissetiğim bazı şeyler var fakat çalışamalarım devam etmekte.
-* 'Led_PWM_BM' : Bu kodumda  tamamen bare metal olarak PWM sinyali üretilmiştir. İlk aşamada Flash Latency ve PLL ayarları yapılarak işlemci saat hızı (HCLK) 84 MHz’e çekilmiştir. Ardından TIM2 zamanlayıcısı, Prescaler (PSC) ve Auto-Reload (ARR) değerleri üzerinden 1 kHz frekansında PWM üretecek şekilde yapılandırılmış ve PA1 pini Alternate Function moduyla bu sinyale atanmıştır. Ana döngü içerisinde CCR2 (Capture/Compare) kayıtçısı yazılımsal olarak güncellenerek duty cycle oranı değiştirilmiş ve bu sayede LED üzerinde pürüzsüz bir "breathing" efekti elde edilmiştir.
+
+* 'Led_PWM_BM' : Bu projemde tamamen bare metal olarak PWM sinyali üretilmiştir. İlk aşamada Flash Latency ve PLL ayarları yapılarak işlemci saat hızı (HCLK) 84 MHz’e çekilmiştir. Ardından TIM2 zamanlayıcısı, Prescaler (PSC) ve Auto-Reload (ARR) değerleri üzerinden 1 kHz frekansında PWM üretecek şekilde yapılandırılmış ve PA1 pini Alternate Function moduyla bu sinyale atanmıştır. Ana döngü içerisinde CCR2 (Capture/Compare) kayıtçısı yazılımsal olarak güncellenerek duty cycle oranı değiştirilmiş ve bu sayede LED üzerinde pürüzsüz bir "breathing" efekti elde edilmiştir.
+
+* 'Led_PWM_BTN_BM': Bu projede bare metal olarak işlemcinin hızı 84MHz ye çıkarılmış ve gerekli timer ayarları ile PWM sinyali ayarlanmıştır. Butonlara gerekli EXTI birimleri SYSCFG ile bağlanmış ve NVIC yapııs ile işlemciye aktarılmmıştır. EXTIIRQHandler fonksiyonları ile butonlar izlenip, işlemler atanmıştır.
 ### 🔹 FPGA Projeleri
 
 
