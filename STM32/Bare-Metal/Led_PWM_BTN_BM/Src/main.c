@@ -53,7 +53,10 @@ typedef unsigned int uint32_t;
 #define EXTI_FTSR          (*(volatile uint32_t *)(EXTI_BASE + 0x0C))
 #define EXTI_RTSR          (*(volatile uint32_t *)(EXTI_BASE + 0x08))
 
-
+// --- STK ---
+#define STK_CTRL          (*(volatile uint32_t *)0xE000E010)
+#define STK_LOAD          (*(volatile uint32_t *)0xE000E014)
+#define STK_VAL           (*(volatile uint32_t *)0xE000E018)
 
 
 
@@ -181,7 +184,7 @@ void NVIC_INIT(void){
 }
 
 
-int Update_PWM(int direction){
+void Update_PWM(int direction){
 	static int pwm_value = 100;
 	const int step = 50;
 

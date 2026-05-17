@@ -31,12 +31,16 @@ Projeler platform bazlı olarak üç ana klasöre ayrılacaktır:
 
 * 'Led_PWM_BTN' : 'adet buton ile ledin parlaklığını artırıp azalttığım kodum.
 
+* 'SERVO' : Servo motorunu 0->180 derece ve 180->0 derece arasında sürekli olarak hareket ettiren kodum.
+
 ### Bare Metal:STM32 de olabildiğince kütüphane kullanmadan register seviyesinde(Bare-metal) yazdığım projeler.
 * 'Led_blink_BM' : Gpıo ve systick, RCC registerlarını kullanarak yazmış olduğum led blink projem. Bu proje kapsamında Systick kullanımı ile delay fonksiyonu yaprım. Countflag ve RCC yapılarının temellerini öğrenmiş oldum. Bu kısımlarda hala eksikliğini hissetiğim bazı şeyler var fakat çalışamalarım devam etmekte.
 
 * 'Led_PWM_BM' : Bu projemde tamamen bare metal olarak PWM sinyali üretilmiştir. İlk aşamada Flash Latency ve PLL ayarları yapılarak işlemci saat hızı (HCLK) 84 MHz’e çekilmiştir. Ardından TIM2 zamanlayıcısı, Prescaler (PSC) ve Auto-Reload (ARR) değerleri üzerinden 1 kHz frekansında PWM üretecek şekilde yapılandırılmış ve PA1 pini Alternate Function moduyla bu sinyale atanmıştır. Ana döngü içerisinde CCR2 (Capture/Compare) kayıtçısı yazılımsal olarak güncellenerek duty cycle oranı değiştirilmiş ve bu sayede LED üzerinde pürüzsüz bir "breathing" efekti elde edilmiştir.
 
 * 'Led_PWM_BTN_BM': Bu projede bare metal olarak işlemcinin hızı 84MHz ye çıkarılmış ve gerekli timer ayarları ile PWM sinyali ayarlanmıştır. Butonlara gerekli EXTI birimleri SYSCFG ile bağlanmış ve NVIC yapııs ile işlemciye aktarılmmıştır. EXTIIRQHandler fonksiyonları ile butonlar izlenip, işlemler atanmıştır.
+
+* 'SERVO_BM' : Bu projede servo motorumun (SG90) datasheet inde bulunan değerlere göre bir TIM2 çıkışı ayarladım. İşlemcim gene 84MHz de çalışmakta. Bu sefer projemde basit delay işlemi kullanmak yerine Non-Blocking State Machine yapısını kullandım. Bu yapı iki kavramın birleşmesinden oluşuyor. 1. kavram Non-Blocking: Bir işi beklerken işlemciyi durdurmak (delay) yerine işlemcinin arka planda diğer işleri yapabilmesine imkan sağlamak. 2. kavram Time Base: Sistem zamanı ölçme işini ana iş yükünden alır ve donanımasl bir zamanlayıcıya devir eder. Bu zamanı biz istediğimiz gibi ayarlayabiliriz. Bu kavramların kesişim kümesinde Non-Blocking State Machine yer almakta. Bu proje özelinde; TIM2 zamanlayıcısını SG90 servonun standart 20ms'lik (50Hz) periyoduna göre yapılandırdım. Motorun 0° ile 180° arasındaki 300ms'lik fiziksel dönüş süresini bu periyoda bölerek 15 adımlık bir döngü oluşturdum. Yazılımsal adım sayacımız, donanımsal zamanlayıcının her 20ms'lik vuruşunda bir tetiklenerek servo konum karşılığını (CCR2) güncelliyor. Sayaç 15'e ulaştığında yönü otomatik olarak geriye, 0'a ulaştığında ise tekrar ileriye çevirerek işlemciyi tek bir milisaniye bile delay ile kilitlemeden otonom  bir servo döngüsü elde etmiş olduk. 
 ### 🔹 FPGA Projeleri
 
 
